@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'pages/historyPage.dart';
 import 'pages/homepage.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        body: HomePage(),
+        body: HistoryPage(),
       ),
     );
   }
