@@ -56,6 +56,30 @@ class HistoryDatabase{
   }
 
 
+  Future<double> readOneDay(String date)async{
+    double distance = 0;
+    final db = await instance.database;
+    final result = await db.query(tableName,where: 'date=?',whereArgs: [date]);
+    var oneDayList = result.map((json) => History.fromJson(json)).toList();
+    
+    if(oneDayList.isEmpty)
+    {
+      return distance;
+    }else{
+      for(var i=0;i<oneDayList.length;i++){
+        distance += oneDayList[i].meters;
+      }
+      return distance;
+    }
+  }
+
+  Future<List<History>> readAll()async{
+    final db = await instance.database;
+    final result = await db.query(tableName);
+    return result.map((json) => History.fromJson(json)).toList();
+  }
+
+
   Future<List<History>> readPrevious(DateTime currentDate) async{
     final db = await instance.database;
     final prevHours = 24;

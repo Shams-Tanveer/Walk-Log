@@ -1,7 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+
+import '../component/customButton.dart';
+import '../controller/checkpointController.dart';
+import '../controller/distancetrackingController.dart';
+import '../controller/progressController.dart';
+import '../controller/setLimitController.dart';
 
 class DistanceTracking extends StatefulWidget {
   final int target;
@@ -13,166 +20,161 @@ class DistanceTracking extends StatefulWidget {
 
 class _DistanceTrackingState extends State<DistanceTracking>
     with SingleTickerProviderStateMixin {
-  late StreamSubscription<Position> _positionStreamSubscription;
-  double _totalDistance = 0.0;
-  Position? _lastPosition;
   late AnimationController _animationController;
-  double _progressValue = 0.0;
-  List checkpoints = [];
-  double _lastCheckpoint  = 0.0;
-  double value = 0.0;
-
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     _animationController = AnimationController(vsync: this);
-    _startTracking();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _stopTracking();
-  }
+  final SetLimitController _setLimitController = Get.put(SetLimitController());
+  final CheckpointController _checkpointController =
+      Get.put(CheckpointController());
 
-  final LocationSettings locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.high,
-    distanceFilter: 10,
-  );
-
-  Future<void> _startTracking() async {
-    try {
-      await Geolocator.requestPermission();
-      _positionStreamSubscription =
-          Geolocator.getPositionStream(locationSettings: locationSettings)
-              .listen(
-        (position) {
-          if (_lastPosition != null) {
-            double distance = Geolocator.distanceBetween(
-              _lastPosition!.latitude,
-              _lastPosition!.longitude,
-              position.latitude,
-              position.longitude,
-            );
-            setState(() {
-              _totalDistance += distance;
-              if (_totalDistance >= widget.target) {
-                _animationController.stop();
-                _stopTracking();
-                _progressValue = 1;
-                _totalDistance = widget.target.toDouble();
-              } else {
-                _progressValue = (_totalDistance / widget.target);
-              }
-            });
-          }
-          _lastPosition = position;
-        },
-      );
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  void _stopTracking() {
-    _positionStreamSubscription.cancel();
-  }
+  final ProgressController _progressController = Get.put(ProgressController());
+  final DistanceTrackingController _distanceTrackingController =
+      Get.put(DistanceTrackingController());
 
   @override
   Widget build(BuildContext context) {
+    final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
+        ? "DarkTheme"
+        : "LightTheme";
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            LiquidCustomProgressIndicator(
-              value: _progressValue, // Defaults to 0.5.
-              valueColor: AlwaysStoppedAnimation(
-                  Colors.pink), // Defaults to the current Theme's accentColor.
-              backgroundColor: Colors.white,
-              direction: Axis.vertical,
-              shapePath: _buildHeartPath(170, 120),
-              center: Text('${(_progressValue * 100).toInt().toString()}%'),
-            ),
-            SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Covered Distance:',
-                      style: TextStyle(fontSize: 16),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent.shade700,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
                     ),
-                    Text(
-                      '${_totalDistance.toInt().toString()} m',
-                      style: TextStyle(fontSize: 28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Obx(() {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: LiquidCustomProgressIndicator(
+                              value: _progressController
+                                  .progressValue.value, // Defaults to 0.5.
+                              valueColor: AlwaysStoppedAnimation(Color(
+                                  0xff880808)), // Defaults to the current Theme's accentColor.
+                              backgroundColor: Colors.white,
+                              direction: Axis.vertical,
+                              shapePath: _buildHeartPath(150, 100),
+                              center: Text(
+                                  '${(_progressController.progressValue.value * 100).toInt().toString()}%'),
+                            ),
+                          );
+                        }),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  'Covered Distance:',
+                                  style: TextStyle(
+                                      color: theme == "DarkTheme"
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontFamily: 'Lato',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Obx(() {
+                                  return Text(
+                                    _distanceTrackingController
+                                        .totalDistance.value
+                                        .toInt()
+                                        .toString(),
+                                    style: TextStyle(
+                                        color: theme == "DarkTheme"
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontFamily: 'Lato',
+                                        fontSize: 28),
+                                  );
+                                })
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  'Total Distance:',
+                                  style: TextStyle(
+                                      color: theme == "DarkTheme"
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontFamily: 'Lato',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '${widget.target.toInt().toString()} m',
+                                  style: TextStyle(
+                                      color: theme == "DarkTheme"
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontFamily: 'Lato',
+                                      fontSize: 28),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Total Distance:',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      '${widget.target.toInt().toString()} m',
-                      style: TextStyle(fontSize: 28),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: checkpoints.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      height: 50,
-                      color: Colors.amber,
-                      child: Center(child: Text('${checkpoints[index].toInt().toString()} m')),
-                    );
-                  }),
-            ),
-            Container(
-              width: 200,
-              height: 50,
-              child: ElevatedButton(
+                  )),
+              Obx(() {
+                return Expanded(
+                  flex: 2,
+                  child: ListView.builder(
+                      itemCount: _checkpointController.checkpoints.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          height: 50,
+                          child: Center(
+                              child: ListTile(
+                            leading: Icon(Icons.flag),
+                            title: Text("Checkpoint " + index.toString()),
+                            trailing: Text(
+                                '${_checkpointController.checkpoints[index].checkpoint.round().toString()} m'),
+                          )),
+                        );
+                      }),
+                );
+              }),
+              MyButton(
+                text: "Add CheckPoints",
                 onPressed: () {
-                  setState(() {
-                    
-                    value = _totalDistance -_lastCheckpoint;
-                    _lastCheckpoint =  _totalDistance;
-                    checkpoints.add(value);
-                  });
+                  _checkpointController.addCheckPoints(
+                      _distanceTrackingController.totalDistance.value -
+                          _checkpointController.lastCheckpoint.value,
+                      DateTime.now());
+                  _checkpointController.updateLastCheckpoint(
+                      _distanceTrackingController.totalDistance.value);
                 },
-                child: Text(
-                  'Add Checkpoint',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                ),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.blue),
-                  elevation: MaterialStateProperty.all<double>(5),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                  ),
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  ),
-                ),
+                fromLeft: Colors.greenAccent,
+                toRight: Colors.greenAccent.shade700,
               ),
-            ),
-            SizedBox(
-              height: 50,
-            )
-          ],
+              MyButton(
+                  text: "Mark As Complete",
+                  onPressed: () {},
+                  fromLeft: theme == "DarkTheme" ? Colors.white : Colors.black,
+                  toRight: theme == "DarkTheme" ? Colors.white : Colors.black),
+            ],
+          ),
         ),
       ),
     );

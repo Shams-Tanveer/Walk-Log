@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "391803648668",
+    "project_id": "walklog-dc294",
+    "storage_bucket": "walklog-dc294.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:391803648668:android:425f1ca8417aae71804b59",
+        "android_client_info": {
+          "package_name": "com.example.walk_log"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "391803648668-39a5ufukflrcqnekitmmigo8hrebk4ti.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsBcsPCnnoQRRyEp1F0fDCV_-s1b0zj-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "391803648668-39a5ufukflrcqnekitmmigo8hrebk4ti.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:walk_log/backgrounddemo.dart';
+import 'package:walk_log/checkingbackgroundor.dart';
+import 'package:walk_log/pages/landingPage.dart';
 
 import 'pages/historyPage.dart';
 import 'pages/homepage.dart';
+import 'theme/mytheme.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,14 +15,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Track Your Walk',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      themeMode: ThemeMode.system,
+      theme: MyTheme.lightTheme,
+      darkTheme: MyTheme.darkTheme,
       home: Scaffold(
-        body: HistoryPage(),
+        body: SafeArea(child: HomePage()),
       ),
     );
   }
