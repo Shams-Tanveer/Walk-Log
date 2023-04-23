@@ -5,9 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as Location;
 import 'package:walk_log/controller/progressController.dart';
 import 'package:walk_log/controller/setLimitController.dart';
+import 'package:walk_log/functions/localDatabaseFunction.dart';
 import 'package:walk_log/pages/homepage.dart';
+import 'package:walk_log/pages/walkingType.dart';
 
 import '../database/hisotryDatabase.dart';
+import '../functions/firebaseFunction.dart';
 import '../model/historyModel.dart';
 
 class DistanceTrackingController extends GetxController {
@@ -51,35 +54,18 @@ class DistanceTrackingController extends GetxController {
         );
 
         totalDistance.value += distance;
-        addToDatabase(distance);
+        LocalDatabaseFunction.addToDatabase(distance);
 
         if (totalDistance >= target) {
           progressController.updateProgress(target.toDouble());
           _stopTracking();
-          Get.to(HomePage());
+          FirebaseFunction.addCompletion(DateTime.now(),target.toDouble());
         } else {
           progressController.updateProgress(totalDistance.value);
         }
       }
       _lastPosition = position;
     });
-  }
-
-
-  void addToDatabase(double distance)async{
-    DateTime now = DateTime.now();
-    int hour = now.hour;
-    String date = DateFormat('yyyy-MM-dd').format(now);
-    History? record = await HistoryDatabase.instance.readOne(date, hour);
-    if(record == null){
-      final history = History(date: date, hour: hour, meters: distance);
-      await HistoryDatabase.instance.create(history);
-    }else{
-      final history = record.copy(
-        meters: record.meters+distance
-      );
-      await HistoryDatabase.instance.update(history);
-  }
   }
 
   void _stopTracking() {

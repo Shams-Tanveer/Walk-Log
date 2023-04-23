@@ -10,8 +10,13 @@ class SetLimitController extends GetxController {
           errorInSetLimitText: "")
       .obs;
 
-  updateValue(double value) {
-    print("object");
+  updateValue(String changedValue) {
+    late double value;
+    if(changedValue==""){
+      value = 0.0;
+    }else{
+      value= double.parse(changedValue);
+    }
     if (value > 10000) {
       setLimit.value = SetLimitModel(
         maxValue: 10000, 
@@ -28,5 +33,12 @@ class SetLimitController extends GetxController {
         errorInSetLimit: false, 
         errorInSetLimitText: "");
     }
+  }
+
+
+  @override
+  void onClose() {
+    // TODO: implement onClose
+    super.onClose();
   }
 }

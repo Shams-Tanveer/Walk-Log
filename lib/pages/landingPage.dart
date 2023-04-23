@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:get/get.dart';
+import 'package:walk_log/pages/homepage.dart';
+import 'package:walk_log/pages/userInfo.dart';
 import 'package:walk_log/pages/walkingType.dart';
+import 'package:walk_log/security/securityClass.dart';
 
 import '../component/customButton.dart';
 
@@ -37,12 +41,12 @@ class _LandingPageState extends State<LandingPage> {
               )),
           MyButton(
             text: "Get Started",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => WalkingTypePage()),
-              );
+            onPressed: () async{
+              if(await SecurityClass.isUserNew()){
+                  Get.to(WalkingTypePage());
+              }else{
+                  Get.to(FitnessWidget());
+              }
             },
             fromLeft: Colors.greenAccent,
             toRight: Colors.greenAccent.shade700,

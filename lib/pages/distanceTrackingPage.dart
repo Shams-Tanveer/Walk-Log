@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'package:walk_log/controller/distancetrackingPedometerController.dart';
+import 'package:walk_log/controller/walkingTypeController.dart';
 
 import '../component/customButton.dart';
 import '../controller/checkpointController.dart';
@@ -11,8 +13,7 @@ import '../controller/progressController.dart';
 import '../controller/setLimitController.dart';
 
 class DistanceTracking extends StatefulWidget {
-  final int target;
-  const DistanceTracking({Key? key, required this.target}) : super(key: key);
+  const DistanceTracking({Key? key}) : super(key: key);
 
   @override
   State<DistanceTracking> createState() => _DistanceTrackingState();
@@ -21,26 +22,42 @@ class DistanceTracking extends StatefulWidget {
 class _DistanceTrackingState extends State<DistanceTracking>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
+  late final _distanceTrackingController;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _animationController = AnimationController(vsync: this);
+    if (_walkignTypeController.walkingType.value == "outdoor") {
+      _distanceTrackingController = Get.put(DistanceTrackingController());
+    } else {
+      _distanceTrackingController =
+          Get.put(DistanceTrackingPedometerController());
+    }
   }
 
-  final SetLimitController _setLimitController = Get.put(SetLimitController());
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    Get.deleteAll();
+    super.dispose();
+  }
+
+  final SetLimitController _setLimitController = Get.find();
   final CheckpointController _checkpointController =
       Get.put(CheckpointController());
-
+  static final WalkignTypeController _walkignTypeController =
+      Get.put(WalkignTypeController());
   final ProgressController _progressController = Get.put(ProgressController());
-  final DistanceTrackingController _distanceTrackingController =
-      Get.put(DistanceTrackingController());
 
   @override
   Widget build(BuildContext context) {
     final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
         ? "DarkTheme"
         : "LightTheme";
+    print(_walkignTypeController.walkingType.value);
+    print(_setLimitController.setLimit.value.maxValue);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -121,7 +138,7 @@ class _DistanceTrackingState extends State<DistanceTracking>
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  '${widget.target.toInt().toString()} m',
+                                  '${_setLimitController.setLimit.value.maxValue.toInt().toString()} m',
                                   style: TextStyle(
                                       color: theme == "DarkTheme"
                                           ? Colors.black
@@ -168,11 +185,7 @@ class _DistanceTrackingState extends State<DistanceTracking>
                 fromLeft: Colors.greenAccent,
                 toRight: Colors.greenAccent.shade700,
               ),
-              MyButton(
-                  text: "Mark As Complete",
-                  onPressed: () {},
-                  fromLeft: theme == "DarkTheme" ? Colors.white : Colors.black,
-                  toRight: theme == "DarkTheme" ? Colors.white : Colors.black),
+              
             ],
           ),
         ),

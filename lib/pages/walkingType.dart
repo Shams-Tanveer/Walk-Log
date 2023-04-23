@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:walk_log/controller/walkingTypeController.dart';
 import '../component/appName.dart';
 import 'homepage.dart';
 
 class WalkingTypePage extends StatelessWidget {
+
+  final WalkignTypeController _walkignTypeController = Get.put(WalkignTypeController());
   @override
   Widget build(BuildContext context) {
     final text = MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -26,10 +30,8 @@ class WalkingTypePage extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
+                      _walkignTypeController.updateWalkingType("outdoor");
+                      Get.to(HomePage());
                     },
                     child: Container(
                       width: (MediaQuery.of(context).size.width - 23) * 0.50,
@@ -48,6 +50,10 @@ class WalkingTypePage extends StatelessWidget {
                     width: 13,
                   ),
                   GestureDetector(
+                    onTap: () {
+                      _walkignTypeController.updateWalkingType("indoor");
+                      Get.to(HomePage());
+                    },
                     child: Container(
                       width: (MediaQuery.of(context).size.width - 23) * 0.50,
                       child: ClipRRect(
