@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:walk_log/controller/themeController.dart';
 
 class InfoCard extends StatelessWidget {
   final String title;
@@ -8,16 +10,14 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
-        ? "DarkTheme"
-        : "LightTheme";
-    return Container(
+    final ThemeController _controller = Get.find();
+    return Obx(() {
+      return Container(
       padding: EdgeInsets.symmetric(horizontal: 4),
       margin: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
-        color: theme=="DarkTheme"?Colors.white: Colors.black,
+        color: _controller.isDarkMode.value? Colors.black:Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
@@ -33,7 +33,7 @@ class InfoCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: theme!="DarkTheme" ? Colors.white: Colors.black,
+              color: _controller.isDarkMode.value? Colors.white:Colors.black,
               fontSize: 14.0,
               fontFamily: "Lato",
               fontWeight: FontWeight.normal,
@@ -44,7 +44,7 @@ class InfoCard extends StatelessWidget {
             subtitle,
             style: TextStyle(
               fontFamily: "Lato",
-              color: theme!="DarkTheme" ? Colors.white: Colors.black,
+              color: _controller.isDarkMode.value? Colors.white:Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
             ),
@@ -52,5 +52,6 @@ class InfoCard extends StatelessWidget {
         ],
       ),
     );
+    });
   }
 }

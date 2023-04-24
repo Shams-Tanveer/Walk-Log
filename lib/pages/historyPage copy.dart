@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:walk_log/component/themeswitch.dart';
-import 'package:walk_log/controller/historyController.dart';
 import 'package:walk_log/controller/themeController.dart';
 
 import '../component/infoCard.dart';
 import '../database/hisotryDatabase.dart';
 import '../model/historyModel.dart';
+
+class BarData {
+  int x;
+  double y;
+
+  BarData({required this.x, required this.y});
+}
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -18,9 +24,60 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
+  List<BarData> barData = [];
+  List<BarData> lineChart = [];
+  String hour24 = "";
+  String meters24 = "";
+  double maxValue24 = 0;
+  double distanceCovered24 = 0;
+  String day7 = "";
+  String meters7 = "";
+  double maxValue7 = 0;
+  double distanceCovered7 = 0;
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  void loadData() async {
+    DateTime now = DateTime.now();
+
+    List<History> historyList =
+        await HistoryDatabase.instance.readPrevious(now);
+    for (int i = 0; i < historyList.length; i++) {
+      if (maxValue7 <= historyList[i].meters) {
+        maxValue7 = historyList[i].meters;
+        meters24 = maxValue7.toInt().toString();
+        hour24 = convertIn12HourFormat(historyList[i].hour.toDouble())[1] +
+            " " +
+            historyList[i].date;
+      }
+      distanceCovered24 += historyList[i].meters;
+      final value = BarData(x: historyList[i].hour, y: historyList[i].meters);
+      barData.add(value);
+    }
+    barData = barData.reversed.toList();
+
+    for (var i = 0; i < 7; i++) {
+      var prevDate = now.subtract(Duration(days: i));
+      String date = DateFormat('yyyy-MM-dd').format(prevDate);
+      final total = await HistoryDatabase.instance.readOneDay(date);
+      final value = BarData(x: prevDate.day, y: total);
+      lineChart.add(value);
+      if (total >= maxValue7) {
+        maxValue7 = total;
+        meters7 = total.toInt().toString();
+        day7 = date;
+      }
+    }
+
+    lineChart = lineChart.reversed.toList();
+    setState(() {});
+  }
 
   final ThemeController _controller = Get.find();
-  final HistoryController _historyController = Get.put(HistoryController());
+
   @override
   Widget build(BuildContext context) {
     final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -48,8 +105,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     SizedBox(
                       height: 25,
                     ),
-                    Obx(() {
-                     return Container(
+                    Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         height: 200,
                         width: 350,
@@ -78,7 +134,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                 ),
                               ),
                             ),
-                            barGroups: _historyController.barData
+                            barGroups: barData
                                 .map((data) =>
                                     BarChartGroupData(x: data.x, barRods: [
                                       BarChartRodData(
@@ -90,30 +146,29 @@ class _HistoryPageState extends State<HistoryPage> {
                                               BackgroundBarChartRodData(
                                                   show: true,
                                                   toY: 1500,
-                                                  color: _controller.isDarkMode.value?Colors.black:Colors.white))
+                                                  color: Colors.grey))
                                     ]))
                                 .toList()
                                 )
                                 ),
-                      );
-                    }),
+                      ),
                     Container(
                       height: 80,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Obx(() => Expanded(
+                          Expanded(
                             child: InfoCard(
                               title: 'Most Active Hours',
-                              subtitle: _historyController.hour24.value.toString(),
+                              subtitle: hour24.toString(),
                             ),
-                          )),
-                          Obx(() => Expanded(
+                          ),
+                          Expanded(
                             child: InfoCard(
                               title: 'Highest Distance Covered',
-                              subtitle: _historyController.meters24.value.toString() + "m",
+                              subtitle: meters24.toString() + "m",
                             ),
-                          )),
+                          ),
                         ],
                       ),
                     ),
@@ -122,18 +177,18 @@ class _HistoryPageState extends State<HistoryPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Obx(() => Expanded(
+                          Expanded(
                             child: InfoCard(
                               title: 'Total Distance Covered',
-                              subtitle: _historyController.distanceCovered24.toInt().toString()+ " m",
+                              subtitle: distanceCovered24.toInt().toString(),
                             ),
-                          ),),
-                          Obx(() => Expanded(
+                          ),
+                          Expanded(
                             child: InfoCard(
-                              title: 'Total Target Completed',
-                              subtitle: _historyController.totalTargetCompleted.toString(),
+                              title: 'Highest Distance Covered',
+                              subtitle: meters24.toString() + "m",
                             ),
-                          )),
+                          ),
                         ],
                       ),
                     ),
@@ -149,7 +204,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Obx(() => Container(
+                      child: Container(
                         height: 200,
                         width: 350,
                         child: LineChart(LineChartData(
@@ -171,32 +226,32 @@ class _HistoryPageState extends State<HistoryPage> {
                             ),
                             lineBarsData: [
                               LineChartBarData(
-                                  spots: _historyController.lineChart
+                                  spots: lineChart
                                       .map((e) => FlSpot(e.x.toDouble(), e.y))
                                       .toList(),
                                   color: Colors.greenAccent.shade700,
                                   isCurved: false,
                                   dotData: FlDotData(show: true))
                             ])),
-                      )),
+                      ),
                     ),
                     Container(
                       height: 80,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Obx(() => Expanded(
+                          Expanded(
                             child: InfoCard(
                               title: 'Most Active Day',
-                              subtitle: _historyController.day7.value,
+                              subtitle: day7,
                             ),
-                          )),
-                          Obx(() => Expanded(
+                          ),
+                          Expanded(
                             child: InfoCard(
                               title: 'Highest Distance Covered',
-                              subtitle: _historyController.meters7.value + "m",
+                              subtitle: meters7 + "m",
                             ),
-                          )),
+                          ),
                         ],
                       ),
                     ),
@@ -210,6 +265,17 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  List convertIn12HourFormat(double value) {
+    int value1 = value.toInt();
+    int hourIn12HourFormat = value1 > 12
+        ? value1 - 12
+        : value1 != 0
+            ? value1
+            : 12;
+    String amOrPm = value1 >= 12 ? 'pm' : 'am';
+    String timeIn12HourFormat = '$hourIn12HourFormat ${amOrPm}';
+    return [hourIn12HourFormat, timeIn12HourFormat];
+  }
 
   Widget bottomTiles(double value, TitleMeta meta) {
     const style = TextStyle(
@@ -218,7 +284,7 @@ class _HistoryPageState extends State<HistoryPage> {
         overflow: TextOverflow.visible);
 
     Widget text;
-    var getIn12HourFormat = _historyController.convertIn12HourFormat(value);
+    var getIn12HourFormat = convertIn12HourFormat(value);
     int hourIn12HourFormat = getIn12HourFormat[0];
     String timeIn12HourFormat = getIn12HourFormat[1];
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,9 @@ import 'package:walk_log/functions/localDatabaseFunction.dart';
 import 'package:walk_log/pages/walkfinishingPage.dart';
 import 'package:walk_log/security/securityClass.dart';
 
-import '../pages/homepage.dart';
+import '../notification/notificationClass.dart';
+import '../pages/setLimitPage.dart';
+import '../permission/permissionHandler.dart';
 
 class DistanceTrackingPedometerController extends GetxController {
   late StreamSubscription<PedestrianStatus> _pedestrianStatusStream;
@@ -24,12 +27,14 @@ class DistanceTrackingPedometerController extends GetxController {
   RxDouble totalDistance = 0.0.obs;
   int target = Get.find<SetLimitController>().setLimit.value.maxValue.toInt();
   var progressController = Get.find<ProgressController>();
+  NotificationClass _notificationClass = NotificationClass();
 
   @override
   Future<void> onInit() async {
     super.onInit();
     prevSteps = 0;
     steps = 0;
+    _notificationClass.initializeNotification();
     strideLength = await SecurityClass.getStrideLength();
     initPlatformState();
   }
@@ -52,6 +57,7 @@ class DistanceTrackingPedometerController extends GetxController {
       totalDistance.value += distance;
       LocalDatabaseFunction.addToDatabase(distance);
       if (totalDistance >= target) {
+        _notificationClass.sendNotifcation("Target Completed", 'You covered ${target.toInt()} meter- WalkLog', "payLoad");
         progressController.updateProgress(target.toDouble());
         _stopTracking();
         FirebaseFunction.addCompletion(DateTime.now(),target.toDouble());
@@ -74,7 +80,11 @@ class DistanceTrackingPedometerController extends GetxController {
     steps = -1;
   }
 
-  void initPlatformState() {
+  void initPlatformState() async{
+
+    if(!await PermissionHandler.handleActivityRecognitionPermission()){
+      exit(0);
+    }
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream.listen((event) {
       onPedestrianStatusChanged(event);
     }, onError: (error) {

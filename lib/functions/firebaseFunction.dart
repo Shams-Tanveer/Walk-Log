@@ -5,7 +5,7 @@ import 'package:walk_log/model/checkpointModel.dart';
 import 'package:walk_log/pages/walkfinishingPage.dart';
 import 'package:walk_log/security/securityClass.dart';
 
-import '../pages/walkingType.dart';
+import '../pages/homePage.dart';
 
 class FirebaseFunction {
   static addCheckPoints(DateTime checkpointTime, double checkpointValue) async {
@@ -19,9 +19,7 @@ class FirebaseFunction {
     FirebaseFirestore.instance
         .collection("checkpoints")
         .add(checkpoint)
-        .then((value) {
-
-        })
+        .then((value) {})
         .onError((error, stackTrace) =>
             SnackBarUtility.showSnackBar(error.toString()));
   }
@@ -41,13 +39,19 @@ class FirebaseFunction {
         (error, stackTrace) => SnackBarUtility.showSnackBar(error.toString()));
   }
 
-  static totalCompletedTarget() async{
+  static totalCompletedTarget() async {
+    final now = DateTime.now();
+    final last24Hours = now.subtract(Duration(hours: 24));
     String userId = await SecurityClass.getUserId();
-    FirebaseFirestore.instance.collection("completed")
-    .where("userId",isEqualTo: userId)
-    .get()
-    .then((value) {
-      return value.docs.length;
+    int count = 0;
+    await FirebaseFirestore.instance
+        .collection("completed")
+        .where("userId", isEqualTo: userId)
+        .where("checkpointTime", isGreaterThanOrEqualTo: last24Hours)
+        .get()
+        .then((value) {
+      count = value.docs.length;
     });
+    return count;
   }
 }

@@ -1,22 +1,22 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:walk_log/backgrounddemo.dart';
-import 'package:walk_log/checkingbackgroundor.dart';
-import 'package:walk_log/fourcard.dart';
+import 'package:walk_log/controller/themeController.dart';
+import 'package:walk_log/justNofication.dart';
 import 'package:walk_log/pages/landingPage.dart';
 import 'package:walk_log/pages/userInfo.dart';
 import 'package:walk_log/pages/walkfinishingPage.dart';
-import 'package:walk_log/pedometerImp.dart';
+import 'package:walk_log/wrapper/wrapperWidget.dart';
 
 import 'component/snackBar.dart';
 import 'pages/historyPage.dart';
-import 'pages/homepage.dart';
-import 'theme/mytheme.dart';
+import 'pages/setLimitPage.dart';
+import 'theme/thememanagement.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Get.put(ThemeController());
   runApp(MyApp());
 }
 
@@ -28,10 +28,11 @@ class MyApp extends StatelessWidget {
       scaffoldMessengerKey: SnackBarUtility.messengerKey,
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      theme: MyTheme.lightTheme,
-      darkTheme: MyTheme.darkTheme,
+      theme: ThemeManagement.lightTheme,
+      darkTheme: ThemeManagement.darkTheme,
       home: Scaffold(
-        body: SafeArea(child: LandingPage()),
+        body: SafeArea(
+          child: LandingPage()),
       ),
     );
   }

@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:walk_log/controller/distancetrackingPedometerController.dart';
+import 'package:walk_log/controller/themeController.dart';
 import 'package:walk_log/controller/walkingTypeController.dart';
 
 import '../component/customButton.dart';
+import '../component/themeswitch.dart';
 import '../controller/checkpointController.dart';
 import '../controller/distancetrackingController.dart';
 import '../controller/progressController.dart';
 import '../controller/setLimitController.dart';
+import '../permission/permissionHandler.dart';
 
 class DistanceTracking extends StatefulWidget {
   const DistanceTracking({Key? key}) : super(key: key);
@@ -26,11 +30,10 @@ class _DistanceTrackingState extends State<DistanceTracking>
   late final _distanceTrackingController;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _animationController = AnimationController(vsync: this);
     if (_walkignTypeController.walkingType.value == "outdoor") {
-      _distanceTrackingController = Get.put(DistanceTrackingController());
+      _distanceTrackingController = Get.put(DistanceTrackingController(context: context));
     } else {
       _distanceTrackingController =
           Get.put(DistanceTrackingPedometerController());
@@ -39,25 +42,29 @@ class _DistanceTrackingState extends State<DistanceTracking>
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    Get.deleteAll();
+    if (_walkignTypeController.walkingType.value == "outdoor") {
+      Get.delete<DistanceTrackingController>();
+    } else {
+      Get.delete<DistanceTrackingPedometerController>();
+    }
+    Get.delete<SetLimitController>();
+    Get.delete<CheckpointController>();
+    Get.delete<WalkignTypeController>();
+    Get.delete<ProgressController>();
+    _animationController.dispose();
     super.dispose();
   }
 
   final SetLimitController _setLimitController = Get.find();
   final CheckpointController _checkpointController =
       Get.put(CheckpointController());
-  static final WalkignTypeController _walkignTypeController =
+  final WalkignTypeController _walkignTypeController =
       Get.put(WalkignTypeController());
   final ProgressController _progressController = Get.put(ProgressController());
+  final ThemeController _controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
-        ? "DarkTheme"
-        : "LightTheme";
-    print(_walkignTypeController.walkingType.value);
-    print(_setLimitController.setLimit.value.maxValue);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -74,80 +81,93 @@ class _DistanceTrackingState extends State<DistanceTracking>
                         bottomRight: Radius.circular(20),
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Stack(
                       children: [
-                        Obx(() {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 12.0),
-                            child: LiquidCustomProgressIndicator(
-                              value: _progressController
-                                  .progressValue.value, // Defaults to 0.5.
-                              valueColor: AlwaysStoppedAnimation(Color(
-                                  0xff880808)), // Defaults to the current Theme's accentColor.
-                              backgroundColor: Colors.white,
-                              direction: Axis.vertical,
-                              shapePath: _buildHeartPath(150, 100),
-                              center: Text(
-                                  '${(_progressController.progressValue.value * 100).toInt().toString()}%'),
-                            ),
-                          );
-                        }),
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Positioned(top: 30, right: 20, child: ThemeSwitch()),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Column(
-                              children: [
-                                Text(
-                                  'Covered Distance:',
-                                  style: TextStyle(
-                                      color: theme == "DarkTheme"
-                                          ? Colors.black
-                                          : Colors.white,
-                                      fontFamily: 'Lato',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                            Obx(() {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: LiquidCustomProgressIndicator(
+                                  value: _progressController
+                                      .progressValue.value, // Defaults to 0.5.
+                                  valueColor: AlwaysStoppedAnimation(Color(
+                                      0xff880808)), // Defaults to the current Theme's accentColor.
+                                  backgroundColor: Colors.white,
+                                  direction: Axis.vertical,
+                                  shapePath: _buildHeartPath(150, 100),
+                                  center: Text(
+                                    '${(_progressController.progressValue.value * 100).toInt().toString()}%',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
-                                Obx(() {
-                                  return Text(
-                                    _distanceTrackingController
-                                        .totalDistance.value
-                                        .toInt()
-                                        .toString(),
-                                    style: TextStyle(
-                                        color: theme == "DarkTheme"
-                                            ? Colors.black
-                                            : Colors.white,
-                                        fontFamily: 'Lato',
-                                        fontSize: 28),
-                                  );
-                                })
+                              );
+                            }),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Column(
+                                  children: [
+                                    Obx(() {
+                                      return Text(
+                                        'Covered Distance:',
+                                        style: TextStyle(
+                                            color: _controller.isDarkMode.value
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontFamily: 'Lato',
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      );
+                                    }),
+                                    Obx(() {
+                                      return Text(
+                                        _distanceTrackingController
+                                            .totalDistance.value
+                                            .toInt()
+                                            .toString(),
+                                        style: TextStyle(
+                                            color: _controller.isDarkMode.value
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontFamily: 'Lato',
+                                            fontSize: 28),
+                                      );
+                                    })
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Obx(() {
+                                      return Text(
+                                        'Total Distance:',
+                                        style: TextStyle(
+                                            color: _controller.isDarkMode.value
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontFamily: 'Lato',
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      );
+                                    }),
+                                    Obx(() {
+                                      return Text(
+                                        '${_setLimitController.setLimit.value.maxValue.toInt().toString()} m',
+                                        style: TextStyle(
+                                            color: _controller.isDarkMode.value
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontFamily: 'Lato',
+                                            fontSize: 28),
+                                      );
+                                    })
+                                  ],
+                                )
                               ],
                             ),
-                            Column(
-                              children: [
-                                Text(
-                                  'Total Distance:',
-                                  style: TextStyle(
-                                      color: theme == "DarkTheme"
-                                          ? Colors.black
-                                          : Colors.white,
-                                      fontFamily: 'Lato',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  '${_setLimitController.setLimit.value.maxValue.toInt().toString()} m',
-                                  style: TextStyle(
-                                      color: theme == "DarkTheme"
-                                          ? Colors.black
-                                          : Colors.white,
-                                      fontFamily: 'Lato',
-                                      fontSize: 28),
-                                ),
-                              ],
-                            )
                           ],
                         ),
                       ],
@@ -185,7 +205,6 @@ class _DistanceTrackingState extends State<DistanceTracking>
                 fromLeft: Colors.greenAccent,
                 toRight: Colors.greenAccent.shade700,
               ),
-              
             ],
           ),
         ),

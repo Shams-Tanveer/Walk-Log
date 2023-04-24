@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:walk_log/model/userModel.dart';
 import 'package:walk_log/security/securityClass.dart';
@@ -41,10 +42,11 @@ class UserController extends GetxController {
     }
   }
 
-  addUser() {
-    if(_handleValidateInformation())
+  addUser(BuildContext context) async{
+    var isValidate = await _handleValidateInformation();
+    if(isValidate)
     {
-      SecurityClass.assignUser(_convertHeightTom(heightType.value),_convertWeightToKg(weightType.value),gender.value);
+      SecurityClass.assignUser(context,_convertHeightTom(heightType.value),_convertWeightToKg(weightType.value),gender.value);
     }
   }
 
@@ -89,6 +91,10 @@ class UserController extends GetxController {
         heightType.value = type;
         isFeet.value = false;
       }
-    } else {}
+    } else if(field=="weight"){
+        weightType.value = type;
+    }else{
+      gender.value = type;
+    }
   }
 }

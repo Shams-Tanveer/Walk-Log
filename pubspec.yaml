@@ -48,6 +48,9 @@ dependencies:
   flutter_secure_storage: ^8.0.0
   cloud_firestore: ^4.5.2
   firebase_core: ^2.10.0
+  flutter_switch: ^0.3.2
+  flutter_local_notifications: ^13.0.0
+  permission_handler: ^10.2.0
   
 
 dev_dependencies:

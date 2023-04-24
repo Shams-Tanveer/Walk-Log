@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:walk_log/controller/themeController.dart';
 
 class MyButton extends StatelessWidget {
   final String text;
@@ -12,20 +14,21 @@ class MyButton extends StatelessWidget {
       required this.fromLeft,
       required this.toRight});
 
+  ThemeController _controller = Get.find();
   @override
   Widget build(BuildContext context) {
-    final theme = MediaQuery.of(context).platformBrightness == Brightness.dark
-        ? "DarkTheme"
-        : "LightTheme";
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () => onPressed(),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal:24,vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           width: MediaQuery.of(context).size.width,
           child: Ink(
             decoration: BoxDecoration(
+              border: Border.all(color: _controller.isDarkMode.value
+                          ? Colors.black
+                          : Colors.white),
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 colors: [fromLeft, toRight],
@@ -34,17 +37,20 @@ class MyButton extends StatelessWidget {
               ),
             ),
             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            child: Center(
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: theme=="LightTheme"? Colors.white : Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Lato"
+            child: Obx(() {
+              return Center(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                      color: _controller.isDarkMode.value
+                          ? Colors.black
+                          : Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Lato"),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
         ),
       ),
