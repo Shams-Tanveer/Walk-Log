@@ -48,14 +48,7 @@ class DistanceTrackingController extends GetxController {
       distanceFilter: 10,
     );
 
-    if (await PermissionHandler.handleLocationPermission()) {
-      print(await location.isBackgroundModeEnabled());
-      if (!await location.isBackgroundModeEnabled()) {
-        await PermissionHandler.handleBackgroundLocationPermission(context);
-      }
-    } else {
-      exit(0);
-    }
+    await PermissionHandler.handleLocationPermission(context);
     positionSubscription =
         Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((position) {

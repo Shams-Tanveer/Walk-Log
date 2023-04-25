@@ -27,8 +27,8 @@ class MyButton extends StatelessWidget {
           child: Ink(
             decoration: BoxDecoration(
               border: Border.all(color: _controller.isDarkMode.value
-                          ? Colors.black
-                          : Colors.white),
+                          ? Colors.white
+                          : Colors.black),
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 colors: [fromLeft, toRight],
@@ -43,8 +43,8 @@ class MyButton extends StatelessWidget {
                   text,
                   style: TextStyle(
                       color: _controller.isDarkMode.value
-                          ? Colors.black
-                          : Colors.white,
+                          ? Colors.white
+                          : Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Lato"),

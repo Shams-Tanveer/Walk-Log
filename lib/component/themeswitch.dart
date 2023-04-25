@@ -15,17 +15,17 @@ class ThemeSwitch extends StatelessWidget {
         return FlutterSwitch(
           activeText: "Light",
           inactiveText: "Dark",
-          activeColor: Colors.black,
-          inactiveColor: Colors.white,
-          activeTextColor: Colors.white,
-          inactiveTextColor: Colors.black,
-          inactiveToggleColor: Colors.black,
-          activeToggleColor: Colors.white,
-          activeIcon: Icon(
+          activeColor: Colors.white,
+          inactiveColor: Colors.black,
+          activeTextColor: Colors.black,
+          inactiveTextColor: Colors.white,
+          inactiveToggleColor: Colors.white,
+          activeToggleColor: Colors.black,
+          inactiveIcon: Icon(
             Icons.nightlight_round,
             color: Colors.black,
           ),
-          inactiveIcon: Icon(
+          activeIcon: Icon(
             Icons.wb_sunny,
             color: Color.fromRGBO(253, 184, 19, 1),
           ),

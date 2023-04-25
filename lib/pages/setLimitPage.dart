@@ -115,11 +115,11 @@ class SetLimiPage extends StatelessWidget {
                                         ? const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.black)
+                                            color: Colors.white)
                                         : const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white)),
+                                            color: Colors.black)),
                                 onChanged: (value) {
                                   setLimitController.updateValue(value);
                                 },
@@ -144,8 +144,8 @@ class SetLimiPage extends StatelessWidget {
                                   max: 10000,
                                   divisions: 100,
                                   inactiveColor: _controller.isDarkMode.value
-                                      ? Colors.black
-                                      : Colors.white,
+                                      ? Colors.white
+                                      : Colors.black,
                                   activeColor: Colors.greenAccent.shade700,
                                   onChanged: (value) {
                                     setLimitController
@@ -179,17 +179,7 @@ class SetLimiPage extends StatelessWidget {
                                       .setLimit.value.errorInSetLimit
                                   ? () {}
                                   : () {
-                                      Get.offAll(DistanceTracking());
-                                      //Navigator.push(
-                                      //  context,
-                                      //  MaterialPageRoute(
-                                      //      builder: (context) =>
-                                      //          DistanceTracking(
-                                      //            target: setLimitController
-                                      //                .setLimit.value.maxValue
-                                      //                .toInt(),
-                                      //          )),
-                                      //);
+                                      Get.to(DistanceTracking());
                                     },
                               fromLeft: setLimitController
                                       .setLimit.value.errorInSetLimit
@@ -207,11 +197,11 @@ class SetLimiPage extends StatelessWidget {
                                 Get.to(HistoryPage());
                               },
                               fromLeft: _controller.isDarkMode.value
-                                  ? Colors.white
-                                  : Colors.black,
+                                  ? Colors.black
+                                  : Colors.white,
                               toRight: _controller.isDarkMode.value
-                                  ? Colors.white
-                                  : Colors.black),
+                                  ? Colors.black
+                                  : Colors.white),
                         ],
                       ),
                     ))

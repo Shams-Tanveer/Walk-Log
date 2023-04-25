@@ -90,7 +90,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                               BackgroundBarChartRodData(
                                                   show: true,
                                                   toY: 1500,
-                                                  color: _controller.isDarkMode.value?Colors.black:Colors.white))
+                                                  color: _controller.isDarkMode.value?Colors.white:Colors.black))
                                     ]))
                                 .toList()
                                 )

@@ -8,9 +8,10 @@ import 'package:permission_handler/permission_handler.dart' as pHandler;
 import 'package:walk_log/component/snackBar.dart';
 
 class PermissionHandler {
-  static Future<bool> handleLocationPermission() async {
+  static Future<bool> handleLocationPermission(BuildContext context) async {
     bool serviceEnabled;
     LocationPermission permission;
+    Location location = Location();
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -24,6 +25,10 @@ class PermissionHandler {
       if (permission == LocationPermission.denied) {
         SnackBarUtility.showSnackBar('Location permissions are denied');
         return false;
+      } else {
+        if (!await location.isBackgroundModeEnabled()) {
+          await PermissionHandler.handleBackgroundLocationPermission(context);
+        }
       }
     }
     if (permission == LocationPermission.deniedForever) {
@@ -60,7 +65,7 @@ class PermissionHandler {
             ),
             actions: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop(false);
                 },
                 child: Text(

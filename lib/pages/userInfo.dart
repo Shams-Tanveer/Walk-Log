@@ -55,8 +55,8 @@ class UserInfoPage extends StatelessWidget {
                                   labelStyle: TextStyle(
                                       fontFamily: "Lato",
                                       color: _controller.isDarkMode.value
-                                          ? Colors.black
-                                          : Colors.white)),
+                                          ? Colors.white
+                                          : Colors.black)),
                             ),
                           ),
                           SizedBox(width: 20),
@@ -171,8 +171,8 @@ class UserInfoPage extends StatelessWidget {
             labelStyle: TextStyle(
                 fontFamily: "Lato",
                 color: _controller.isDarkMode.value
-                    ? Colors.black
-                    : Colors.white)),
+                    ? Colors.white
+                    : Colors.black)),
         onChanged: (value) {
           _userController.updateData(identifyFunction, value);
         },
@@ -194,11 +194,11 @@ class UserInfoPage extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                     color: _controller.isDarkMode.value
-                        ? Colors.black
-                        : Colors.white))),
+                        ? Colors.white
+                        : Colors.black))),
         style: TextStyle(
             fontFamily: "Lato",
-            color: _controller.isDarkMode.value ? Colors.black : Colors.white,
+            color: _controller.isDarkMode.value ? Colors.white : Colors.black,
             fontSize: 16),
         value: value,
         onChanged: (String? value) {

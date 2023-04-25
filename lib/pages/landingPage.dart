@@ -12,7 +12,7 @@ import '../component/customButton.dart';
 import 'homepage.dart';
 
 class LandingPage extends StatelessWidget {
-  LandingPage({super.key});
+  LandingPage({Key? key}): super(key: key);
 
   ThemeController _controller = Get.find();
   @override
@@ -35,8 +35,8 @@ class LandingPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: _controller.isDarkMode.value
-                            ? AssetImage('assets/images/walklogwhite.png')
-                            : AssetImage('assets/images/walklogblack.png'),
+                            ? AssetImage('assets/images/walklogblack.png')
+                            : AssetImage('assets/images/walklogwhite.png'),
                         fit: BoxFit
                             .fitWidth, // adjust the image to cover the whole container
                       ),

@@ -2,15 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:walk_log/controller/themeController.dart';
-import 'package:walk_log/justNofication.dart';
 import 'package:walk_log/pages/landingPage.dart';
-import 'package:walk_log/pages/userInfo.dart';
-import 'package:walk_log/pages/walkfinishingPage.dart';
-import 'package:walk_log/wrapper/wrapperWidget.dart';
 
 import 'component/snackBar.dart';
-import 'pages/historyPage.dart';
-import 'pages/setLimitPage.dart';
 import 'theme/thememanagement.dart';
 
 Future<void> main() async {
