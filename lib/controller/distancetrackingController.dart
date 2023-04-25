@@ -47,7 +47,7 @@ class DistanceTrackingController extends GetxController {
       accuracy: LocationAccuracy.high,
       distanceFilter: 10,
     );
-
+    await _notificationClass.requestNotificationPermissions();
     await PermissionHandler.handleLocationPermission(context);
     positionSubscription =
         Geolocator.getPositionStream(locationSettings: locationSettings)

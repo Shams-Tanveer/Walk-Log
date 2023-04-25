@@ -15,7 +15,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -25,8 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeManagement.lightTheme,
       darkTheme: ThemeManagement.darkTheme,
       home: Scaffold(
-        body: SafeArea(
-          child: LandingPage()),
+        body: SafeArea(child: LandingPage()),
       ),
     );
   }

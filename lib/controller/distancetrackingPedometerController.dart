@@ -81,7 +81,7 @@ class DistanceTrackingPedometerController extends GetxController {
   }
 
   void initPlatformState() async{
-
+    await _notificationClass.requestNotificationPermissions();
     if(!await PermissionHandler.handleActivityRecognitionPermission()){
       exit(0);
     }
